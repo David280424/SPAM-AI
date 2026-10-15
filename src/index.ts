@@ -21,13 +21,17 @@ async function run(): Promise<void> {
   const cache = refreshCache ? {} : await loadAnalysisCache();
   console.log(`Unread inbox messages found: ${emails.length}`);
 
+  const uncachedEmails = emails.filter((email) => !cache[email.id]);
+  const uncachedIds = new Set(uncachedEmails.map((email) => email.id));
+  if (uncachedEmails.length > 0) {
+    console.log(`Classifying ${uncachedEmails.length} uncached messages in one Gemini request...`);
+    Object.assign(cache, await gemini.analyzeEmails(uncachedEmails));
+    await saveAnalysisCache(cache);
+  }
+
   for (const email of emails) {
-    let analysis = cache[email.id];
-    if (!analysis) {
-      analysis = await gemini.analyzeEmail(email);
-      cache[email.id] = analysis;
-      await saveAnalysisCache(cache);
-    } else {
+    const analysis = cache[email.id];
+    if (!uncachedIds.has(email.id)) {
       console.log("Using cached classification.");
     }
 

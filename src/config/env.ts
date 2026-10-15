@@ -9,7 +9,7 @@ const envSchema = z.object({
   DRY_RUN: z.enum(["true", "false"]).default("true"),
   MAX_EMAILS_PER_RUN: z.coerce.number().int().min(1).max(100).default(20),
   MIN_CONFIDENCE_TO_TRASH: z.coerce.number().min(0).max(1).default(0.9),
-  GEMINI_MODEL: z.string().default("gemini-2.5-flash"),
+  GEMINI_MODEL: z.string().default("gemini-3.8-flash"),
 });
 
 const parsed = envSchema.parse(process.env);
